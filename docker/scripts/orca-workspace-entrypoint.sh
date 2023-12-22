@@ -15,4 +15,6 @@ source /opt/ros/${ROS_DISTRO}/setup.bash
 # Restart udev daemon
 sudo service udev restart
 
+. install/setup.sh
+
 $@
