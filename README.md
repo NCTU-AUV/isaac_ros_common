@@ -4,7 +4,7 @@ Dockerfiles and scripts for development using the Isaac ROS suite.
 
 ## Overview
 
-The [Isaac ROS Common](https://github.com/NVIDIA-ISAAC-ROS/isaac_ros_common)
+The Isaac ROS Common
 repository contains a number of scripts and Dockerfiles to help
 streamline development and testing with the Isaac ROS suite.
 
@@ -31,4 +31,4 @@ Please visit the [Isaac ROS Documentation](https://nvidia-isaac-ros.github.io/re
 
 ## Latest
 
-Update 2024-05-30: Update to be compatible with JetPack 6.0
+Update 2024-12-10: Refactored Dockerfiles

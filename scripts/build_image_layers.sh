@@ -22,9 +22,10 @@ function usage() {
 DOCKER_BUILDKIT=1
 IGNORE_COMPOSITE_KEYS=0
 ADDITIONAL_BUILD_ARGS=()
+ADDITIONAL_DOCKER_ARGS=()
 DOCKER_SEARCH_DIRS=(${DOCKER_DIR})
 SKIP_REGISTRY_CHECK=0
-BASE_DOCKER_REGISTRY_NAMES=("nvcr.io/isaac/ros")
+BASE_DOCKER_REGISTRY_NAMES=("nvcr.io/nvidia/isaac/ros")
 
 # Read and parse config file if exists
 #
@@ -54,7 +55,7 @@ if [ ${#CONFIG_DOCKER_SEARCH_DIRS[@]} -gt 0 ]; then
 fi
 
 # Parse command-line args
-VALID_ARGS=$(getopt -o hra:b:c:ki:n:u --long help,skip_registry_check,build_arg:,base_image:,context_dir:,disable_buildkit,image_key:,image_name:,ignore_composite_keys -- "$@")
+VALID_ARGS=$(getopt -o hra:b:c:ki:n:d: --long help,skip_registry_check,build_arg:,base_image:,context_dir:,disable_buildkit,image_key:,image_name:,ignore_composite_keys,docker_arg: -- "$@")
 eval set -- "$VALID_ARGS"
 while [ : ]; do
   case "$1" in
@@ -68,6 +69,10 @@ while [ : ]; do
         ;;
     -c | --context_dir)
         DOCKER_CONTEXT_DIR="$2"
+        shift 2
+        ;;
+    -d | --docker_arg)
+        ADDITIONAL_DOCKER_ARGS+=("$2")
         shift 2
         ;;
     -k | --disable_buildkit)
@@ -128,6 +133,10 @@ fi
 for BUILD_ARG in "${ADDITIONAL_BUILD_ARGS[@]}"
 do
     print_info "Additional build arg: ${BUILD_ARG}"
+done
+for DOCKER_ARG in "${ADDITIONAL_DOCKER_ARGS[@]}"
+do
+    print_info "Additional docker arg: ${DOCKER_ARG}"
 done
 if [[ $DOCKER_BUILDKIT -eq 0 ]]; then
     print_warning "WARNING: Explicitly disabling BuildKit"
@@ -267,9 +276,12 @@ fi
 
 # Arguments for docker build
 BUILD_ARGS+=("--build-arg" "USERNAME="admin"")
-BUILD_ARGS+=("--build-arg" "USER_UID=`id -u`")
-BUILD_ARGS+=("--build-arg" "USER_GID=`id -g`")
-BUILD_ARGS+=("--build-arg" "PLATFORM=$PLATFORM")
+
+if [[ $PLATFORM == "x86_64" ]]; then
+    BUILD_ARGS+=("--build-arg" "PLATFORM=amd64")
+else
+    BUILD_ARGS+=("--build-arg" "PLATFORM=arm64")
+fi
 
 for BUILD_ARG in ${ADDITIONAL_BUILD_ARGS[@]}
 do
@@ -337,6 +349,7 @@ for (( i=${#DOCKERFILES[@]}-1 ; i>=0 ; i-- )); do
      -t ${IMAGE_NAME} \
      ${BASE_IMAGE_ARG} \
      "${BUILD_ARGS[@]}" \
+     "${ADDITIONAL_DOCKER_ARGS[@]}" \
      $@ \
      ${DOCKER_CONTEXT_ARG}
 done
