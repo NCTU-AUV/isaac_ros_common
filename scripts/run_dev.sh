@@ -282,10 +282,14 @@ if [[ $VERBOSE -eq 1 ]]; then
 fi
 docker run -it --rm \
     --privileged \
+    --device=/dev/bus/usb \
+    -v /dev:/dev  \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    -e DISPLAY=$DISPLAY \
     --network host \
     --ipc=host \
     ${DOCKER_ARGS[@]} \
-    -v $ISAAC_ROS_DEV_DIR:/workspaces/isaac_ros-dev \
+    -v /home/orca/workspaces:/workspaces \
     -v /etc/localtime:/etc/localtime:ro \
     --name "$CONTAINER_NAME" \
     --runtime nvidia \
