@@ -289,7 +289,7 @@ docker run -it --rm \
     --network host \
     --ipc=host \
     ${DOCKER_ARGS[@]} \
-    -v /home/orca/workspaces:/workspaces \
+    -v $ISAAC_ROS_WS/..:/workspaces \
     -v /etc/localtime:/etc/localtime:ro \
     --name "$CONTAINER_NAME" \
     --runtime nvidia \
